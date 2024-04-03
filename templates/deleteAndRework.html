@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Task Deletion</title>
+</head>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<body>
+    
+
+<script>
+    function getGtsList(mode) {
+        let id = (mode == 'delete') ? $("#project_id1").val():$("#project_id2").val()
+        
+        if (id != '') {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('getGts') }}",
+                data: {
+                    'id': id
+                },
+                success: function (gtsList) {
+                    let select = document.getElementsByName(mode == 'delete'?"gt_list_delete":"gt_list_rework")
+                    select[0].innerHTML = ''
+                    for (gt of gtsList) {
+                        let opt = document.createElement("option")
+                        opt.value = gt
+                        opt.innerHTML = gt
+                        opt.innerText = gt
+                        select[0].appendChild(opt)
+                    }
+                }
+            });
+        }
+    }    
+</script>
+
+<div class="container">
+    <center>
+        <h1>Delete GT Records By Project Id</h1>
+    </center>
+    {% if errorMsg != '' %}
+    <center>
+        <h5 class="error-message">{{errorMsg}}</h5>
+    </center>
+    {% elif successMsg != '' %}
+    <center>
+        <h5 class="success-message">{{successMsg}}</h5>
+    </center>
+    {% endif %}
+    <hr>
+
+   
+
+    <form action="/deleteRecord" method="post">
+        <center>
+            <h6>After Inserting Project Id , Press The Refresh Buttton Then GTs List Will Be Initialized</h6>
+        </center>
+        <label >Project ID:</label> 
+        <div class="with-refresh-btn">
+            <input type="text" id="project_id1" name="project_id1" placeholder="e.g. Project8" required>
+            <img src="{{url_for('static', filename='refresh2.ico')}}" onclick="getGtsList('delete')" />
+        </div>
+        <label for="gt_list">GTs List:</label>
+        <select class="gts-list" required type="dropdown" name="gt_list_delete">
+        </select>
+        <center>
+            <small style="color: peru;">Unreached GT's Or GT's That Didint Opend At Least Once Will Not Be Shown At The List</small>
+        </center>
+        <hr>
+        <div class="btns-div">
+            <button type="submit" class="delete-button">Delete Records</button>
+        </div>
+    </form>
+
+</div>
+<div class="container">
+    <center>
+        <h1>Rework Project With Reason </h1>
+    </center>
+    <center>
+        <h6>This form will rework each activity with the Project Id that had the same Rework Reason</h6>
+    </center>
+    <hr>
+    {% if successMsgRework != '' %}
+    <center>
+        <h5 class="success-message">{{successMsgRework}}</h5>
+    </center>
+    {% elif errMsgRework != '' %}
+    <center>
+        <h5 class="error-message">{{errMsgRework}}</h5>
+    </center>
+    {% endif %}
+    <form action="/reworkProject" method="post">
+        <label for="project_id">Project ID:</label>
+        <input type="text" name="project_id" placeholder="e.g. Project8" required>
+        <br>
+        <!-- <label>Project ID:</label> 
+        <div class="with-refresh-btn">
+            <input type="text" id="project_id2" name="project_id2" placeholder="e.g. Project8" required>
+            <img src="{{url_for('static', filename='refresh2.ico')}}" onclick="getGtsList('rework')" />
+        </div>
+        <label for="gt_list">GTs List:</label>
+        <select class="gts-list" required type="dropdown" name="gt_list_rework">
+        </select> -->
+        <label for="reason">Guided Task Reason:</label>
+        <input type="text" name="reason" placeholder="e.g. Location Change" required>
+        <br>
+        <label for="comments">Guided Task Comments:</label>
+        <input type="text" name="comments" placeholder="optional">
+        <br>
+        <div class="btns-div">
+            <button type="submit" class="submit-button">Rework Project</button>
+        </div>
+    </form>
+
+</div>
+</body>
